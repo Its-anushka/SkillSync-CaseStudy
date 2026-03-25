@@ -1,0 +1,2 @@
+com\capg\gateway\ApiGatewayApplication.class
+com\capg\gateway\filter\AuthenticationFilter.class

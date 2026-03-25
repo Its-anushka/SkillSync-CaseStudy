@@ -1,0 +1,200 @@
+services:
+
+  # ORACLE
+  oracle-db:
+    image: gvenzl/oracle-xe:21-slim
+    container_name: oracle-db
+    ports:
+      - "1522:1521"
+    environment:
+      ORACLE_PASSWORD: oracle
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+    networks:
+      - microservices-net
+
+  # RABBITMQ
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - microservices-net
+
+  # CONFIG SERVER
+  config-server:
+    build: ./config-server
+    container_name: config-server
+    ports:
+      - "8888:8888"
+    networks:
+      - microservices-net
+
+  # EUREKA SERVER
+  eureka-server:
+    build: ./eureka-server
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    depends_on:
+      - config-server
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+    networks:
+      - microservices-net
+
+  # API GATEWAY
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "7070:7070"
+    depends_on:
+      - config-server
+      - eureka-server
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+    networks:
+      - microservices-net
+
+  # AUTH SERVICE
+  authentication-service:
+    build: ./authentication-service
+    container_name: authentication-service
+    ports:
+      - "7071:7071"
+    depends_on:
+      - config-server
+      - eureka-server
+      - oracle-db
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+    networks:
+      - microservices-net
+
+  # USER SERVICE
+  user-service:
+    build: ./user-service
+    container_name: user-service
+    ports:
+      - "7072:7072"
+    depends_on:
+      - config-server
+      - eureka-server
+      - oracle-db
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+    networks:
+      - microservices-net
+
+  # MENTOR SERVICE
+  mentor-service:
+    build: ./mentor-service
+    container_name: mentor-service
+    ports:
+      - "7073:7073"
+    depends_on:
+      - config-server
+      - eureka-server
+      - oracle-db
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+    networks:
+      - microservices-net
+
+  # SKILL SERVICE
+  skill-service:
+    build: ./skill-service
+    container_name: skill-service
+    ports:
+      - "7074:7074"
+    depends_on:
+      - config-server
+      - eureka-server
+      - oracle-db
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+    networks:
+      - microservices-net
+
+  # REVIEW SERVICE
+  review-service:
+    build: ./review-service
+    container_name: review-service
+    ports:
+      - "7075:7075"
+    depends_on:
+      - config-server
+      - eureka-server
+      - oracle-db
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+    networks:
+      - microservices-net
+
+  # SESSION SERVICE
+  session-service:
+    build: ./Session-Service
+    container_name: session-service
+    ports:
+      - "7076:7076"
+    depends_on:
+      - config-server
+      - eureka-server
+      - oracle-db
+      - rabbitmq
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    networks:
+      - microservices-net
+
+  # GROUP SERVICE
+  group-service:
+    build: ./group-service
+    container_name: group-service
+    ports:
+      - "7077:7077"
+    depends_on:
+      - config-server
+      - eureka-server
+      - oracle-db
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+    networks:
+      - microservices-net
+
+  # NOTIFICATION SERVICE
+  notification-service:
+    build: ./Notification-Service
+    container_name: notification-service
+    ports:
+      - "7078:7078"
+    depends_on:
+      - config-server
+      - eureka-server
+      - oracle-db
+      - rabbitmq
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    networks:
+      - microservices-net
+
+volumes:
+  oracle-data:
+
+networks:
+  microservices-net:
+    driver: bridge
