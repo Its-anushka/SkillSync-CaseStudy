@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 @FeignClient(name = "user-service", url = "http://localhost:7072", fallback = UserClientFallback.class)
 public interface UserClient {
 
-    @PostMapping("/api/user/createprofile")
+    @PostMapping("/users/profile")
     void createProfile(
             @RequestHeader("Authorization") String token,
             @RequestBody UserProfileRequest request
