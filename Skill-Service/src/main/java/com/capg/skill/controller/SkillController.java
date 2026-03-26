@@ -25,14 +25,14 @@ public class SkillController {
     }
 
     //Get all skills
-    @GetMapping
+    @GetMapping("/public")
     public List<SkillResponse> getAllSkills() {
 
         return skillService.getAllSkills();
     }
 
     //Get skill by ID
-    @GetMapping("/{id}")
+    @GetMapping("/public/{id}")
     public SkillResponse getSkillById(@PathVariable Long id) {
 
         return skillService.getSkillById(id);

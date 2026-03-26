@@ -40,6 +40,7 @@ public class ReviewController {
      * @return an ApiResponse uniformly enveloping the persisted ReviewResponse mapping
      * @throws IllegalArgumentException if the provided DTO fails semantic validation
      */
+
     @PostMapping
     public ApiResponse<ReviewResponse> addReview(
             @Valid @RequestBody final ReviewRequest request) {

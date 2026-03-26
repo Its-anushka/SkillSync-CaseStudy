@@ -8,6 +8,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(name = "skill-service")
 public interface SkillClient {
 
-    @GetMapping("/skills/{id}")
+    @GetMapping("/skills/public/{id}")
     SkillDto getSkillById(@PathVariable Long id);
 }

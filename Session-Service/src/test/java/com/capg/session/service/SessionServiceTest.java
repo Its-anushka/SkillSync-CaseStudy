@@ -133,4 +133,56 @@ class SessionServiceTest {
         verify(dao, times(1)).acceptSession(1);
         verify(publisher, times(1)).publish(any(SessionEvent.class));
     }
+
+    @Test
+    void bookSessionService_ValidData_Success() {
+        UserDto mockUser = new UserDto();
+        mockUser.setId(10L);
+
+        MentorResponse mockMentor = new MentorResponse();
+        mockMentor.setId(20L);
+        ApiResponse<MentorResponse> mentorApiResponse = new ApiResponse<>();
+        mentorApiResponse.setData(mockMentor);
+
+        when(userServiceClient.getUserById(10L)).thenReturn(mockUser);
+        when(mentorServiceClient.getMentorById(20L)).thenReturn(mentorApiResponse);
+        
+        Session bookedSession = new Session();
+        bookedSession.setId(2);
+        bookedSession.setStatus("BOOKED");
+        when(dao.bookSession(20, 10, futureDate)).thenReturn(bookedSession);
+
+        Session result = sessionService.bookSessionService(20, 10, futureDate);
+
+        assertNotNull(result);
+        assertEquals("BOOKED", result.getStatus());
+        
+        verify(userServiceClient, times(1)).getUserById(10L);
+        verify(mentorServiceClient, times(1)).getMentorById(20L);
+        verify(dao, times(1)).bookSession(20, 10, futureDate);
+        verify(publisher, times(1)).publish(any(SessionEvent.class));
+    }
+
+    @Test
+    void getMySessionService_Success() {
+        java.util.List<Session> sessions = java.util.Arrays.asList(dummySession);
+        when(dao.getSessionsByUserId(10)).thenReturn(sessions);
+
+        java.util.List<Session> result = sessionService.getMySessionService(10);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        verify(dao, times(1)).getSessionsByUserId(10);
+    }
+
+    @Test
+    void getSessionByIdService_Success() {
+        when(dao.getSessionById(1)).thenReturn(dummySession);
+
+        Session result = sessionService.getSessionByIdService(1);
+
+        assertNotNull(result);
+        assertEquals(1, result.getId());
+        verify(dao, times(1)).getSessionById(1);
+    }
 }

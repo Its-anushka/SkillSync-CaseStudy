@@ -25,6 +25,7 @@ public class GlobalExceptionHandler {
     // Handle all other exceptions
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleGeneric(Exception ex) {
+        ex.printStackTrace(); // Log the actual exception!
 
         ErrorResponse error = new ErrorResponse(
                 "Something went wrong",

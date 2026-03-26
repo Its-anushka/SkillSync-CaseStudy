@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 public interface MentorClient {
 
     //Validate mentor exists
-    @GetMapping("/mentors/{id}")
+    @GetMapping("/mentors/public/{id}")
     Object getMentorById(@PathVariable Long id);
 
     //Update mentor rating

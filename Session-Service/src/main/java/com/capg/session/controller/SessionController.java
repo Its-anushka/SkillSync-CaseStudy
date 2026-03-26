@@ -41,9 +41,18 @@ public class SessionController {
 	 * @return ResponseEntity with created Session
 	 * @throws InvalidSessionException if mentor_id, learner_id are invalid or session_date is in past
 	 */
+
 	@PostMapping
+	@PreAuthorize("hasAnyRole('MENTOR', 'USER')")
 	public ResponseEntity<Session> requestionNewSession(@RequestBody SessionDTO dto) {
 		Session session = service.requestSessionService(dto.getMentor_id(), dto.getLearner_id(), dto.getSession_Date());
+		return ResponseEntity.ok(session);
+	}
+
+	@PostMapping("/book")
+	@PreAuthorize("hasRole('USER')")
+	public ResponseEntity<Session> bookSession(@RequestBody SessionDTO dto) {
+		Session session = service.bookSessionService(dto.getMentor_id(), dto.getLearner_id(), dto.getSession_Date());
 		return ResponseEntity.ok(session);
 	}
 	
@@ -86,6 +95,7 @@ public class SessionController {
 	 * @throws InvalidSessionException if session ID is invalid
 	 */
 	@PutMapping(path = "/{id}/cancel")
+	@PreAuthorize("hasRole('MENTOR')")
 	public ResponseEntity<Session> cancelSession(@PathVariable("id")int id) {
 		Session session = service.cancelSessionService(id);
 		return ResponseEntity.ok(session);
@@ -106,8 +116,22 @@ public class SessionController {
 		return ResponseEntity.ok(session);
 	}
 
+
 	@org.springframework.web.bind.annotation.GetMapping(path = "/user/{userId}")
+	@PreAuthorize("hasAnyRole('MENTOR', 'USER')")
 	public ResponseEntity<java.util.List<Session>> getSessionsByUser(@PathVariable("userId")int userId) {
 		return ResponseEntity.ok(service.getSessionsByUser(userId));
+	}
+
+	@org.springframework.web.bind.annotation.GetMapping(path = "/my/{userId}")
+	@PreAuthorize("hasAnyRole('MENTOR', 'USER')")
+	public ResponseEntity<java.util.List<Session>> getMySession(@PathVariable("userId")int userId) {
+		return ResponseEntity.ok(service.getMySessionService(userId));
+	}
+
+	@org.springframework.web.bind.annotation.GetMapping(path = "/{id}")
+	@PreAuthorize("hasAnyRole('MENTOR', 'USER')")
+	public ResponseEntity<Session> getSessionById(@PathVariable("id")int id) {
+		return ResponseEntity.ok(service.getSessionByIdService(id));
 	}
 }

@@ -1,11 +1,14 @@
 package com.capg.group.controller;
 
+import com.capg.group.dto.ApiResponse;
 import com.capg.group.dto.CreateGroupRequest;
 import com.capg.group.entity.Group;
+import com.capg.group.entity.GroupMember;
 import com.capg.group.service.GroupService;
 
 import java.util.List;
 import com.capg.group.dto.GroupResponse;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,19 +33,19 @@ public class GroupController {
 //        return service.createGroup(email, request, token);
 //    }
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping
-    public Group createGroup(
-            @RequestHeader("Authorization") String token,
-            @RequestBody CreateGroupRequest request) {
+    public Group createGroup(@RequestBody CreateGroupRequest request) {
 
         String email = SecurityContextHolder
                 .getContext()
                 .getAuthentication()
                 .getName();
 
-        return service.createGroup(email, request, token);
+        return service.createGroup(email, request);
     }
 
+    @PreAuthorize("hasAnyRole('USER','MENTOR')")
     @PostMapping("/{groupId}/leave")
     public String leaveGroup(@PathVariable Long groupId) {
 
@@ -55,19 +58,20 @@ public class GroupController {
 
         return "Left group successfully";
     }
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @DeleteMapping("/{groupId}/remove/{email}")
-    public String removeMember(@PathVariable Long groupId,
-                               @PathVariable String email) {
+    public ApiResponse<String> removeMember(@PathVariable Long groupId,
+                                    @PathVariable String email) {
 
         String adminEmail = SecurityContextHolder
                 .getContext()
                 .getAuthentication()
                 .getName();
 
-        service.removeMember(adminEmail, groupId, email);
-
-        return "User removed successfully";
+       return service.removeMember(adminEmail, groupId, email);
     }
+    @PreAuthorize("hasAnyRole('USER','MENTOR')")
     @PostMapping("/{groupId}/join")
     public String joinGroup(@PathVariable Long groupId) {
 
@@ -81,16 +85,20 @@ public class GroupController {
         return "Joined group successfully";
     }
 
+    @PreAuthorize("hasAnyRole('USER','ADMIN', 'MENTOR')")
     @GetMapping
     public List<GroupResponse> getAllGroups() {
         return service.getAllGroups();
     }
 
+    @PreAuthorize("hasAnyRole('USER','ADMIN', 'MENTOR')")
     @GetMapping("/{groupId}")
     public GroupResponse getGroup(@PathVariable Long groupId) {
         return service.getGroup(groupId);
     }
-    
+
+
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/my")
     public List<GroupResponse> getMyGroups() {
 
@@ -101,4 +109,12 @@ public class GroupController {
 
         return service.getMyGroups(email);
     }
+
+    @PreAuthorize("hasAnyRole('USER','ADMIN', 'MENTOR')")
+    @GetMapping("/{groupId}/members")
+    public List<GroupMember> getGroupMembers(@PathVariable Long groupId){
+        return service.getGroupMembers(groupId);
+    }
+
+
 }

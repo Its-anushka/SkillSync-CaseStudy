@@ -25,6 +25,13 @@ public class SessionDAO {
 		return session;
 	}
 	
+	public Session bookSession(int mentor_id, int learner_id, Date session_date) {
+		Date current_date = new Date();
+		Session session = new Session(mentor_id,learner_id,session_date,"BOOKED",current_date);
+		em.persist(session);
+		return session;
+	}
+	
 	public Session acceptSession(int id) {
 		Session session = em.find(Session.class, id);
 		if (session == null) {
@@ -69,5 +76,13 @@ public class SessionDAO {
 		return em.createQuery("SELECT s FROM Session s WHERE s.learner_id = :userId OR s.mentor_id = :userId", Session.class)
 				.setParameter("userId", userId)
 				.getResultList();
+	}
+
+	public Session getSessionById(int id) {
+		Session session = em.find(Session.class, id);
+		if (session == null) {
+			throw new SessionNotFoundException("Session with id " + id + " not found", id);
+		}
+		return session;
 	}
 }

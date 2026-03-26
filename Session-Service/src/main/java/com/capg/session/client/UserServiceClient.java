@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import com.capg.session.dto.UserDto;
 
-@FeignClient(name = "user-service")
+@FeignClient(name = "user-service", configuration = FeignConfig.class)
 public interface UserServiceClient {
     
     @GetMapping("/users/{id}")

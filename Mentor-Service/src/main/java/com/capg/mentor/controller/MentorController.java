@@ -102,4 +102,11 @@ public class MentorController {
                 .build();
     }
 
+    @PutMapping("/{mentorId}/rating")
+    public void updateRating(@PathVariable Long mentorId,
+                                       @RequestParam Double rating) {
+        mentorService.updateRating(mentorId, rating);
+    }
+
+
 }

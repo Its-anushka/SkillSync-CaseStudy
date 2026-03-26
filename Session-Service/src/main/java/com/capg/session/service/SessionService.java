@@ -70,6 +70,44 @@ public class SessionService {
 		return session;
 	}
 	
+	public Session bookSessionService(int mentor_id, int learner_id, Date session_date) {
+		
+		if (mentor_id <= 0 || learner_id <= 0) {
+			throw new InvalidSessionException("Mentor ID and Learner ID must be valid positive integers");
+		}
+		
+		if (session_date == null || session_date.before(new Date())) {
+			throw new InvalidSessionException("Session date cannot be null or in the past");
+		}
+		
+		try {
+			// Validate listener/user profile is valid
+			UserDto user = userServiceClient.getUserById((long) learner_id);
+		} catch (FeignException e) {
+			throw new InvalidSessionException("Learner ID is invalid or user does not exist");
+		}
+
+		try {
+			// Validate mentor profile is valid
+			ApiResponse<MentorResponse> mentor = mentorServiceClient.getMentorById((long) mentor_id);
+			if (mentor == null || mentor.getData() == null) {
+				throw new InvalidSessionException("Mentor does not exist");
+			}
+		} catch (FeignException e) {
+			throw new InvalidSessionException("Mentor ID is invalid or mentor does not exist");
+		}
+
+		Session session =  dao.bookSession(mentor_id, learner_id, session_date);
+		
+		SessionEvent event = new SessionEvent();
+	    event.setEventType("BOOKED");
+		event.setSessionId((long)session.getId());
+
+	    publisher.publish(event);
+		
+		return session;
+	}
+	
 	public Session acceptSessionService(int id) {
 		
 		if (id <= 0) {
@@ -140,5 +178,13 @@ public class SessionService {
 
 	public java.util.List<Session> getSessionsByUser(int userId) {
 		return dao.getSessionsByUserId(userId);
+	}
+
+	public java.util.List<Session> getMySessionService(int userId) {
+		return dao.getSessionsByUserId(userId);
+	}
+
+	public Session getSessionByIdService(int id) {
+		return dao.getSessionById(id);
 	}
 }

@@ -6,6 +6,7 @@ import com.capg.mentor.dto.SkillDto;
 import com.capg.mentor.dto.UserDto;
 import com.capg.mentor.dto.request.AvailabilityRequest;
 import com.capg.mentor.dto.request.MentorRequest;
+import com.capg.mentor.dto.response.ApiResponse;
 import com.capg.mentor.dto.response.ApprovedMentorResponse;
 import com.capg.mentor.dto.response.MentorResponse;
 import com.capg.mentor.entity.Availability;
@@ -41,12 +42,12 @@ public class MentorServiceImpl implements MentorService {
     public MentorResponse applyForMentor(MentorRequest request) {
 
         // 0. Validate if user has already applied
-        if (mentorRepository.countByUserId(request.getUserId()) > 1) {
+        if (mentorRepository.countByUserId(request.getUserId()) > 0) {
             throw new BadRequestException("User has already applied for mentor");
         }
 
         // 1. Validate user exists
-        UserDto user = userClient.getUserById(request.getUserId());
+        UserDto user =  userClient.getUserById(request.getUserId());
         if (user == null) {
             throw new ResourceNotFoundException("User not found");
         }
@@ -144,5 +145,13 @@ public class MentorServiceImpl implements MentorService {
         Mentor ment = mentorRepository.save(mentor);
         return MentorMapper.toApprovedResponse(ment);
     }
+
+    @Override
+    public void updateRating(Long mentorId, Double rating) {
+        Mentor mentor = mentorRepository.findById(mentorId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        mentor.setRating(rating);
+        mentorRepository.save(mentor);
+    }
+
 
 }
