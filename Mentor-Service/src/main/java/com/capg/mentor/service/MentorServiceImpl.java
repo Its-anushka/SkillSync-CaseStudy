@@ -190,10 +190,10 @@ public class MentorServiceImpl implements MentorService {
      * @param mentorId Mentor ID
      * @throws ResourceNotFoundException if mentor is not found
      */
-    @Override
+
     public void denyMentor(Long mentorId) {
         Mentor mentor = mentorRepository.findById(mentorId).orElseThrow(() -> new ResourceNotFoundException("Mentor not found"));
-        mentor.setStatus(MentorStatus.DENIED);
+        mentor.setStatus(MentorStatus.REJECTED);
         mentorRepository.save(mentor);
     }
 
