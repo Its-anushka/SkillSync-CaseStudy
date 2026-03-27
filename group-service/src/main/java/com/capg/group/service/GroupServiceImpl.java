@@ -13,6 +13,14 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+/**
+ * Group Service Implementation
+ * Handles business logic for group-related operations
+ * 
+ * Exception Handling:
+ * - ResourceNotFoundException: Thrown when group or user is not found (HTTP 404)
+ * - RuntimeException: Thrown when user is already a member, not a member, or removing last admin (HTTP 400)
+ */
 @Service
 public class GroupServiceImpl implements GroupService {
 
@@ -25,6 +33,13 @@ public class GroupServiceImpl implements GroupService {
         this.memberRepository = memberRepository;
     }
 
+    /**
+     * Create a new group
+     * 
+     * @param email Creator's email
+     * @param request CreateGroupRequest containing group details
+     * @return Group representing the created group
+     */
     @Override
     public Group createGroup(String email, CreateGroupRequest request) {
 
@@ -46,6 +61,13 @@ public class GroupServiceImpl implements GroupService {
         return savedGroup;
     }
 
+	/**
+	 * Join an existing group
+	 * 
+	 * @param email User's email
+	 * @param groupId Group ID
+	 * @throws RuntimeException if group not found or user is already a member
+	 */
 	@Override
 	public void joinGroup(String email, Long groupId) {
 		 // 1. Check group exists
@@ -66,6 +88,13 @@ public class GroupServiceImpl implements GroupService {
 	    memberRepository.save(member);
 		
 	}
+	/**
+	 * Retrieve group by ID
+	 * 
+	 * @param groupId Group ID
+	 * @return GroupResponse for the given ID
+	 * @throws ResourceNotFoundException if group is not found
+	 */
 	@Override
 	public GroupResponse getGroup(Long groupId) {
 
@@ -87,6 +116,13 @@ public class GroupServiceImpl implements GroupService {
 	    return response;
 	}
 
+	/**
+	 * Leave a group
+	 * 
+	 * @param email User's email
+	 * @param groupId Group ID
+	 * @throws RuntimeException if user is not a member or is the only admin
+	 */
 	@Override
 	public void leaveGroup(String email, Long groupId) {
 		 GroupMember member = memberRepository
@@ -107,6 +143,16 @@ public class GroupServiceImpl implements GroupService {
 		
 	}
 
+	/**
+	 * Remove a member from a group (Admin only)
+	 * 
+	 * @param adminEmail Admin's email
+	 * @param groupId Group ID
+	 * @param targetEmail Email of the member to remove
+	 * @return ApiResponse with success status
+	 * @throws ResourceNotFoundException if admin or target user is not found
+	 * @throws RuntimeException if target user is not in group
+	 */
 	@Override
 	public ApiResponse<String> removeMember(String adminEmail, Long groupId, String targetEmail) {
 
@@ -148,6 +194,12 @@ public class GroupServiceImpl implements GroupService {
 				.build();
 		}
 		
+	/**
+	 * Retrieve groups belonging to the user
+	 * 
+	 * @param email User's email
+	 * @return List of GroupResponse objects
+	 */
 	@Override
 	public List<GroupResponse> getMyGroups(String email) {
 
@@ -170,6 +222,11 @@ public class GroupServiceImpl implements GroupService {
 	            .toList();
 	}
 
+	/**
+	 * Retrieve all groups
+	 * 
+	 * @return List of GroupResponse objects
+	 */
 	@Override
 	public List<GroupResponse> getAllGroups() {
 	    return groupRepository.findAll()
@@ -185,6 +242,13 @@ public class GroupServiceImpl implements GroupService {
 	            .toList();
 	}
 
+	/**
+	 * Retrieve members of a group
+	 * 
+	 * @param groupId Group ID
+	 * @return List of GroupMember objects
+	 * @throws RuntimeException if group is not found
+	 */
 	@Override
 	public List<GroupMember> getGroupMembers(Long groupId) {
 		Group group = groupRepository.findById(groupId).orElseThrow(() -> new RuntimeException("Group not found"));

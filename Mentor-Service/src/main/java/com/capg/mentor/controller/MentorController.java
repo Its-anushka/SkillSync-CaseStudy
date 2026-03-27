@@ -16,6 +16,15 @@ import com.capg.mentor.service.MentorService;
 
 import java.util.List;
 
+/**
+ * Mentor Controller
+ * Handles mentor-related REST endpoints
+ * 
+ * Exception Handling:
+ * - ResourceNotFoundException: Thrown when mentor, user, or skill is not found (HTTP 404)
+ * - BadRequestException: Thrown when user has already applied or availability times are invalid (HTTP 400)
+ * - AccessDeniedException: Thrown when user lacks required role (HTTP 403)
+ */
 @RestController
 @RequestMapping("/mentors")
 @RequiredArgsConstructor
@@ -23,7 +32,14 @@ public class MentorController {
 
     private final MentorService mentorService;
 
-    //Apply for mentor → ONLY LEARNER
+    /**
+     * Apply for a mentorship role
+     * 
+     * @param request Mentor application details
+     * @return ApiResponse containing MentorResponse
+     * @throws BadRequestException if user already applied
+     * @throws ResourceNotFoundException if user or skills do not exist
+     */
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/apply")
     public ApiResponse<MentorResponse> applyForMentor(
@@ -42,7 +58,11 @@ public class MentorController {
                 .build();
     }
 
-    //Public access
+    /**
+     * Retrieve all approved mentors
+     * 
+     * @return ApiResponse containing list of MentorResponse objects
+     */
     @GetMapping("/public")
     public ApiResponse<List<MentorResponse>> getAllMentors() {
 
@@ -55,7 +75,13 @@ public class MentorController {
                 .build();
     }
 
-    //Public access
+    /**
+     * Retrieve a specific mentor by ID
+     * 
+     * @param id Mentor ID
+     * @return ApiResponse containing MentorResponse
+     * @throws ResourceNotFoundException if mentor is not found
+     */
     @GetMapping("/public/{id}")
     public ApiResponse<MentorResponse> getMentorById(@PathVariable Long id) {
 
@@ -68,7 +94,15 @@ public class MentorController {
                 .build();
     }
 
-    //Only mentor can add availability + ownership check
+    /**
+     * Add availability slot for a mentor
+     * 
+     * @param id Mentor ID
+     * @param request Availability limits and details
+     * @return ApiResponse indicating success
+     * @throws ResourceNotFoundException if mentor is not found
+     * @throws BadRequestException if start time is after end time
+     */
     @PreAuthorize("hasRole('MENTOR')")
     @PutMapping("/{id}/availability")
     public ApiResponse<Void> addAvailability(
@@ -90,6 +124,13 @@ public class MentorController {
                 .build();
     }
 
+    /**
+     * Approve a mentor application (Admin only)
+     * 
+     * @param id Mentor ID
+     * @return ApiResponse containing ApprovedMentorResponse
+     * @throws ResourceNotFoundException if mentor is not found
+     */
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/admin/{id}")
     public ApiResponse<ApprovedMentorResponse> approveMentor(@PathVariable Long id){
@@ -102,6 +143,13 @@ public class MentorController {
                 .build();
     }
 
+    /**
+     * Update the rating of a mentor
+     * 
+     * @param mentorId Mentor ID
+     * @param rating New rating value
+     * @throws ResourceNotFoundException if mentor is not found
+     */
     @PutMapping("/{mentorId}/rating")
     public void updateRating(@PathVariable Long mentorId,
                                        @RequestParam Double rating) {

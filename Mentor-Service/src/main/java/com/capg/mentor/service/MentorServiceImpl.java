@@ -26,6 +26,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Mentor Service Implementation
+ * Handles business logic for mentor-related operations
+ * 
+ * Exception Handling:
+ * - ResourceNotFoundException: Thrown when mentor, user, or skill is not found (HTTP 404)
+ * - BadRequestException: Thrown when user has already applied or availability times are invalid (HTTP 400)
+ */
 @Service
 @RequiredArgsConstructor
 public class MentorServiceImpl implements MentorService {
@@ -37,6 +45,14 @@ public class MentorServiceImpl implements MentorService {
     private final UserClient userClient;
     private final SkillClient skillClient;
 
+    /**
+     * Apply for a mentorship role
+     * 
+     * @param request Mentor application request
+     * @return MentorResponse containing mentor details
+     * @throws BadRequestException if user already applied
+     * @throws ResourceNotFoundException if user or skills do not exist
+     */
     @Override
     @Transactional
     public MentorResponse applyForMentor(MentorRequest request) {
@@ -81,7 +97,11 @@ public class MentorServiceImpl implements MentorService {
         return MentorMapper.toResponse(savedMentor, skillIds, skillClient);
     }
 
-    // GET ALL MENTORS
+    /**
+     * Retrieve all approved mentors
+     * 
+     * @return List of MentorResponse objects
+     */
     @Override
     public List<MentorResponse> getAllMentors() {
 
@@ -99,7 +119,13 @@ public class MentorServiceImpl implements MentorService {
         }).collect(Collectors.toList());
     }
 
-    // GET MENTOR BY ID
+    /**
+     * Retrieve a specific mentor by ID
+     * 
+     * @param id Mentor ID
+     * @return MentorResponse containing mentor details
+     * @throws ResourceNotFoundException if mentor is not found
+     */
     @Override
     public MentorResponse getMentorById(Long id) {
 
@@ -115,7 +141,13 @@ public class MentorServiceImpl implements MentorService {
 
     }
 
-    // ADD AVAILABILITY
+    /**
+     * Add availability slot for a mentor
+     * 
+     * @param request Availability limits and details
+     * @throws ResourceNotFoundException if mentor is not found
+     * @throws BadRequestException if start time is after end time
+     */
     @Override
     public void addAvailability(AvailabilityRequest request) {
 
@@ -135,7 +167,13 @@ public class MentorServiceImpl implements MentorService {
         availabilityRepository.save(availability);
     }
 
-    //Approve Mentor - ADMIN ONLY
+    /**
+     * Approve a mentor application (Admin only)
+     * 
+     * @param mentorId Mentor ID
+     * @return ApprovedMentorResponse indicating success
+     * @throws ResourceNotFoundException if mentor is not found
+     */
     @Override
     public ApprovedMentorResponse approveMentor(Long mentorId) {
         Mentor mentor = mentorRepository.findById(mentorId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -146,6 +184,26 @@ public class MentorServiceImpl implements MentorService {
         return MentorMapper.toApprovedResponse(ment);
     }
 
+    /**
+     * Deny a mentor application (Admin only)
+     * 
+     * @param mentorId Mentor ID
+     * @throws ResourceNotFoundException if mentor is not found
+     */
+    @Override
+    public void denyMentor(Long mentorId) {
+        Mentor mentor = mentorRepository.findById(mentorId).orElseThrow(() -> new ResourceNotFoundException("Mentor not found"));
+        mentor.setStatus(MentorStatus.DENIED);
+        mentorRepository.save(mentor);
+    }
+
+    /**
+     * Update the rating of a mentor
+     * 
+     * @param mentorId Mentor ID
+     * @param rating New rating value
+     * @throws ResourceNotFoundException if mentor is not found
+     */
     @Override
     public void updateRating(Long mentorId, Double rating) {
         Mentor mentor = mentorRepository.findById(mentorId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
