@@ -77,7 +77,15 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+<<<<<<< Updated upstream
             <scope>provided</scope>
+=======
+            <version>1.18.40</version>
+<<<<<<< Updated upstream
+=======
+            <scope>provided</scope>
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
@@ -146,6 +154,33 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+<<<<<<< Updated upstream
+=======
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+<<<<<<< Updated upstream
+                            <version>${lombok.version}</version>
+=======
+                            <version>1.18.40</version>
+>>>>>>> Stashed changes
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+>>>>>>> Stashed changes
         </plugins>
     </build>
 
