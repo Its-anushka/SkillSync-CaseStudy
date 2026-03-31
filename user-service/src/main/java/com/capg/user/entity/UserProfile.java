@@ -1,6 +1,8 @@
 package com.capg.user.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 @Entity
 @Table(name = "user_profiles")
@@ -19,9 +21,13 @@ public class UserProfile {
     @Column(nullable = false)
     private String role;
 
+    @Pattern(regexp = "^\\d{10}$", message = "Phone number must be exactly 10 digits")
     private String phone;
+    @NotNull
     private String bio;
+    @NotNull
     private String skills;
+    @NotNull
     private String location;
 
     @Column(nullable = false)

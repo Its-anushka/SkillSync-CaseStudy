@@ -6,7 +6,6 @@ import com.capg.mentor.dto.SkillDto;
 import com.capg.mentor.dto.UserDto;
 import com.capg.mentor.dto.request.AvailabilityRequest;
 import com.capg.mentor.dto.request.MentorRequest;
-import com.capg.mentor.dto.response.ApiResponse;
 import com.capg.mentor.dto.response.ApprovedMentorResponse;
 import com.capg.mentor.dto.response.MentorResponse;
 import com.capg.mentor.entity.Availability;
@@ -24,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Mentor Service Implementation
@@ -45,6 +43,7 @@ public class MentorServiceImpl implements MentorService {
     private final UserClient userClient;
     private final SkillClient skillClient;
 
+    private static final String message1 = "Mentor not found";
     /**
      * Apply for a mentorship role
      * 
@@ -92,7 +91,7 @@ public class MentorServiceImpl implements MentorService {
         // 6. Prepare response
         List<Long> skillIds = mentorSkills.stream()
                 .map(MentorSkill::getSkillId)
-                .collect(Collectors.toList());
+                .toList();
 
         return MentorMapper.toResponse(savedMentor, skillIds, skillClient);
     }
@@ -112,11 +111,11 @@ public class MentorServiceImpl implements MentorService {
             List<Long> skillIds = mentorSkillRepository.findByMentorId(mentor.getMentorId())
                     .stream()
                     .map(MentorSkill::getSkillId)
-                    .collect(Collectors.toList());
+                    .toList();
 
             return MentorMapper.toResponse(mentor, skillIds, skillClient);
 
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     /**
@@ -130,12 +129,12 @@ public class MentorServiceImpl implements MentorService {
     public MentorResponse getMentorById(Long id) {
 
         Mentor mentor = mentorRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Mentor not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(message1));
 
         List<Long> skillIds = mentorSkillRepository.findByMentorId(id)
                 .stream()
                 .map(MentorSkill::getSkillId)
-                .collect(Collectors.toList());
+                .toList();
 
         return MentorMapper.toResponse(mentor, skillIds, skillClient);
 
@@ -152,7 +151,7 @@ public class MentorServiceImpl implements MentorService {
     public void addAvailability(AvailabilityRequest request) {
 
         Mentor mentor = mentorRepository.findById(request.getMentorId())
-                .orElseThrow(() -> new ResourceNotFoundException("Mentor not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(message1));
 
         if (request.getStartTime().isAfter(request.getEndTime())) {
             throw new BadRequestException("Start time must be before end time");
@@ -192,7 +191,7 @@ public class MentorServiceImpl implements MentorService {
      */
 
     public void denyMentor(Long mentorId) {
-        Mentor mentor = mentorRepository.findById(mentorId).orElseThrow(() -> new ResourceNotFoundException("Mentor not found"));
+        Mentor mentor = mentorRepository.findById(mentorId).orElseThrow(() -> new ResourceNotFoundException(message1));
         mentor.setStatus(MentorStatus.REJECTED);
         mentorRepository.save(mentor);
     }

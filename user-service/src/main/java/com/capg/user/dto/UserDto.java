@@ -1,7 +1,10 @@
 package com.capg.user.dto;
 
+import jakarta.validation.constraints.Email;
+
 public class UserDto {
     Long id;
+    @Email(message = "Invalid email format")
     String email;
     String fullName;
     String role;

@@ -46,6 +46,11 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             return chain.filter(exchange);
         }
 
+        // Bypass complete checking for CORS preflight OPTIONS requests
+        if (request.getMethod() != null && request.getMethod().matches("OPTIONS")) {
+            return chain.filter(exchange);
+        }
+
         if (!request.getHeaders().containsKey("Authorization")) {
             return unAuthorized(exchange.getResponse(), "Missing Authorization Header");
         }

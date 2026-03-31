@@ -19,10 +19,10 @@ public class MentorRequest {
     private String bio;
 
     @Min(0)
-    private int experience;
+    private Integer experience;
 
     @Positive
-    private double hourlyRate;
+    private Double hourlyRate;
 
     @NotEmpty
     private List<Long> skillIds;

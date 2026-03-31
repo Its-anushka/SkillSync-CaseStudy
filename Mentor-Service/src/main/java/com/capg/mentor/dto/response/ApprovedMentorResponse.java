@@ -13,6 +13,6 @@ public class ApprovedMentorResponse {
     private Long mentorId;
     private Long userId;
     private String bio;
-    private int experience;
-    private double hourlyRate;
+    private Integer experience;
+    private Double hourlyRate;
 }

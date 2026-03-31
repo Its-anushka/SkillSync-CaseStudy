@@ -13,9 +13,9 @@ public class MentorResponse{
     private Long id;
     private Long userId;
     private String bio;
-    private int experience;
-    private double rating;
-    private double hourlyRate;
+    private Integer experience;
+    private Double rating;
+    private Double hourlyRate;
     private List<Long> skillId;
     private List<String> skills;
 }

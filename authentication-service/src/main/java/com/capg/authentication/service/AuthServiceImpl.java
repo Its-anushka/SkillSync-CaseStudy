@@ -1,7 +1,6 @@
 package com.capg.authentication.service;
 
 import com.capg.authentication.client.UserClient;
-import com.capg.authentication.dto.*;
 import com.capg.authentication.dto.AuthResponse;
 import com.capg.authentication.dto.LoginRequest;
 import com.capg.authentication.dto.RegisterRequest;
@@ -13,6 +12,8 @@ import com.capg.authentication.security.JwtUtil;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -20,7 +21,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserClient userClient; // 🔥 Feign
-
+    private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
     // Constructor Injection
     public AuthServiceImpl(UserRepository userRepository,
                            PasswordEncoder passwordEncoder,
@@ -33,12 +34,12 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponse register(RegisterRequest request) {
 
-        // ✅ Check duplicate
+        //Check duplicate
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new UserAlreadyExistsException("User already exists with this email");
         }
 
-        // ✅ Create user
+        //Create user
         User user = new User();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
@@ -48,10 +49,10 @@ public class AuthServiceImpl implements AuthService {
 
         User savedUser = userRepository.save(user);
 
-        // 🔥 Generate JWT immediately
+        // Generate JWT immediately
         String token = JwtUtil.generateToken(savedUser.getEmail(), savedUser.getRole().name());
 
-        // 🔥 Call user-service (Feign)
+        //Call user-service (Feign)
         try {
             UserProfileRequest profile = new UserProfileRequest();
             profile.setFullName(savedUser.getName());
@@ -63,8 +64,7 @@ public class AuthServiceImpl implements AuthService {
             userClient.createProfile("Bearer " + token, profile);
 
         } catch (Exception e) {
-            System.out.println("User-service call failed: " + e.getMessage());
-            // ⚠️ Don't break registration if profile fails
+            logger.error(e.getMessage());
         }
 
         return new AuthResponse("User registered successfully", token);

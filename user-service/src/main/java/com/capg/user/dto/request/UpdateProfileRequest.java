@@ -1,11 +1,19 @@
 package com.capg.user.dto.request;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+
 public class UpdateProfileRequest {
 
+	@NotNull
     private String fullName;
+	@Pattern(regexp = "^\\d{10}$", message = "Phone number must be exactly 10 digits")
     private String phone;
+	@NotNull
     private String location;
-    private String bio;
+	@NotNull
+	private String bio;
+	@NotNull
     private String skills;
 
 	public String getFullName() {
